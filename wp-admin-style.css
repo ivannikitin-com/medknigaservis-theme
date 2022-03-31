@@ -1,0 +1,9 @@
+.wp-admin.edit-php.post-type-product .inline-edit-row-post ul.product_cat-checklist {
+	height: 550px;
+}
+.post-type-shop_order .wp-list-table td, .post-type-shop_order .wp-list-table th {
+    width: 9ch;
+}
+.post-type-shop_order .wp-list-table tfoot th, .post-type-shop_order .wp-list-table thead th {
+    padding: .75em 0.75em;
+}
