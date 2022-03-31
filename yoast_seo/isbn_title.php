@@ -12,8 +12,15 @@ function mks_seo_title_isbn( $title, $presentation ){
         $delimeter = ' • ';
         $isbn = $product->get_attribute( 'isbn' );
         if ( $isbn ){
+
+            // Вычисляем автора. Немного криво, но зато работает.
+            $product_attr = get_post_meta( $product_id, '_product_attributes' );
+            $book_author = isset($product_attr[0]['avtor']) ? 
+                $product_attr[0]['avtor']['value'] : 
+                $product->get_attribute( 'avtor' ) . $product->get_attribute( 'book-author' );
+
             $title_parts = array(
-                '«' . $product->get_title() . '» ' . $product->get_attribute( 'book-author' ),
+                '«' . $product->get_title() . '» ' . $book_author,
                 'ISBN ' . $isbn,
                 $product->get_attribute( 'god' ),
                 'Медкнигасервис'
