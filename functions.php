@@ -67,6 +67,9 @@ require get_stylesheet_directory() . '/inc/topdelivery.php';
 require get_stylesheet_directory() . '/inc/boxberry.php';
 require get_stylesheet_directory() . '/inc/ordertags.php';
 
+// Формирование SEO TITLE с ISBN
+include get_stylesheet_directory() . '/yoast_seo/isbn_title.php';
+
 // Чистим admin bar от всякого хлама
 define('UPDRAFTPLUS_ADMINBAR_DISABLE', true);
 add_action( 'wp_before_admin_bar_render', function () {
