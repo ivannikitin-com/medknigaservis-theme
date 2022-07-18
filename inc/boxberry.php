@@ -8,7 +8,7 @@ add_filter( 'inwccrm_boxberry_payment_sum', 'mks_boxberry_payment_sum', 10, 2);
 function mks_boxberry_payment_sum( $orderTotal, $order )
 {
 	$paymentMethod = $order->get_payment_method();
-	if ( $paymentMethod == 'site' || $paymentMethod == 'cp' )
+	if ( $paymentMethod == 'site' || $paymentMethod == 'cp' || strpos( $paymentMethod, 'alg_tinkoff_gateway' ) !== false )
 	{
 		return 0;
 	}	
@@ -136,4 +136,12 @@ function mks_boxberry_customer_fio( $value, $order )
 {
 	$value = str_replace('AaBCcHKMOoPpTXx', 'АаВСсНКМОоРрТХх', $value);
 	return $value;
+}
+
+
+// Длина примечания к заказу не может быть более 100 символов. Не передаем его вообще.
+add_filter( 'inwccrm_boxberry_notice', 'mks_boxberry_notice', 10, 2);
+function mks_boxberry_notice( $note, $order )
+{
+	return '';
 }

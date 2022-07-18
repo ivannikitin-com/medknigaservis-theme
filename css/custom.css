@@ -1,3 +1,18 @@
+.w100 {
+	float: none !important;
+	width: 100% !important;
+}
+
+.custom-tax-product .content-area {
+	width: 100%;
+	float: none;
+
+}
+
+.custom-tax-product #primary {
+	padding-bottom: 0;
+}
+
 #billing_country_field {
 	display: none;
 }
@@ -65,6 +80,12 @@ a.disabled {
 #header_top .nav li.c_3e9a8a a,
 #sidebar .ubermenu-nav li.c_3e9a8a>a {
 	color: #3e9a8a;
+}
+
+.c_#ff9966,
+#header_top .nav li.c_ff9966 a,
+#sidebar .ubermenu-nav li.c_ff9966>a {
+	color: #ff9966;
 }
 
 .c_fb3f3b,
@@ -573,9 +594,13 @@ body.content-left-sidebar #content-wrap #sidebar2,
 	}
 }
 
-@media (max-width:600px) {
+@media (max-width:959px) {
 
-	#block-5 {
+	#block-5,
+	#block-2,
+	#block-4,
+	#block-8,
+	.sidebar-box.widget_block {
 		display: none;
 	}
 
@@ -1241,6 +1266,7 @@ ul.products .product-details .price {
 @media (min-width:480px) {
 	.woocommerce ul.products li.product a .woocommerce-loop-product__title {
 		min-height: 54px;
+		line-height: 1.5;
 	}
 }
 
@@ -1336,6 +1362,10 @@ a.color_1 img:hover {
 	.parthners .col.span_1_of_3:nth-of-type(3n+1) {
 		clear: both;
 	}
+
+	.custom-tax-product .content-area {
+		max-width: 100%;
+	}
 }
 
 @media only screen and (max-width: 767px) and (min-width: 480px) {
@@ -1351,6 +1381,19 @@ a.color_1 img:hover {
 
 	.products .col.first {
 		clear: none;
+	}
+}
+
+/* Отдельный шаблон для iframe-вставки на сайты партнеров  */
+@media only screen and (min-width: 901px) {
+	article.books .wpex-row .span_1_of_4.col {
+		width: 25%;
+	}
+}
+
+@media only screen and (min-width: 768px) and (max-width: 900px) {
+	article.books .wpex-row .span_1_of_4.col {
+		width: 50%;
 	}
 }
 
@@ -1672,6 +1715,30 @@ a.wp-mega-menu-link {
 	opacity: 1 !important;
 }
 
+.single-product .summary.w100 {
+	text-align: center;
+}
+
+.single-product .summary.w100 .product_title {
+	text-align: left;
+}
+
+.single-product .product-type-grouped a.button.external_grouped {
+	text-transform: uppercase !important;
+	margin-top: 35px;
+}
+
+.single-product .product-type-grouped a.button.external_grouped .woocommerce-Price-currencySymbol {
+	font-size: inherit;
+}
+
+.single-product .product-type-grouped a.product_type_simple {
+	display: none !important;
+}
+
+/*.single-product .product-type-grouped .description_tab,
+.single-product .product-type-grouped .example_tab*/
+
 .woocommerce.archive ul.products li.product.col,
 .home ul.products li.product.col,
 .single-product ul.products li.product.col {
@@ -1870,6 +1937,11 @@ figure a {
 	font-size: 24px;
 	color: #444;
 	margin: 0;
+}
+
+.woocommerce .product-type-grouped .summary.w100 .shop_attributes,
+.single-product.woocommerce div.product.product-type-grouped div.summary.w100 p.price {
+	margin-bottom: 35px;
 }
 
 .single-product.woocommerce div.product div.summary .price del {

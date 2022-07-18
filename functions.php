@@ -30,7 +30,8 @@ function total_child_enqueue_parent_theme_style() {
 	if (is_page('checkout')){
 		wp_enqueue_script( 'checkout-js', get_stylesheet_directory_uri() . '/js/med-checkout.js', array('jquery'), null, true );
 		wp_enqueue_script( 'pickpoint-js', 'https://pickpoint.ru/select/postamat.js', array('jquery'), null, true );
-		wp_enqueue_script( 'boxberry-js', 'https://points.boxberry.de/js/boxberry.js', array('jquery'), null, true );		
+		//wp_enqueue_script( 'boxberry-js', 'https://points.boxberry.de/js/boxberry.js', array('jquery'), null, true );
+		wp_enqueue_script( 'boxberry-ru-js', 'https://points.boxberry.ru/js/boxberry.js', array('jquery'), null, true );				
 	}
 
 	
@@ -39,6 +40,9 @@ function total_child_enqueue_parent_theme_style() {
 	if (is_page('checkout')){
 		wp_enqueue_script( 'addfav-js',  get_stylesheet_directory_uri() . '/js/addfav.js', array('jquery'), null, true );
 	}
+	if (is_page('books')){
+		wp_enqueue_script( 'template-books-js',  get_stylesheet_directory_uri() . '/js/template-books.js', array('jquery'), null, true );
+	}	
 	// Стилизация полей форм
 	wp_enqueue_style( 'formstyler-css', get_stylesheet_directory_uri() . '/jQueryFormStyle/jquery.formstyler.css' );
 	wp_enqueue_script( 'formstyler-js', get_stylesheet_directory_uri() . '/jQueryFormStyle/jquery.formstyler.min.js', array('jquery'), null, true );		
@@ -66,6 +70,7 @@ require get_stylesheet_directory() . '/inc/b2cpl.php';
 require get_stylesheet_directory() . '/inc/topdelivery.php';
 require get_stylesheet_directory() . '/inc/boxberry.php';
 require get_stylesheet_directory() . '/inc/ordertags.php';
+require get_stylesheet_directory() . '/inc/webpushs.php';
 
 // Формирование SEO TITLE с ISBN
 include get_stylesheet_directory() . '/yoast_seo/isbn_title.php';

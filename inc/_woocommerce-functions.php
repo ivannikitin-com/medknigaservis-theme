@@ -80,8 +80,10 @@ function add_buy_grouped_button(){
 	if ($product->get_type() == 'grouped') {
 		$external_grouped_price = get_post_meta($product->get_id(),'_external_grouped_price',true);
 		$external_grouped_url = get_post_meta($product->get_id(),'_external_grouped_url',true);
-		$button_html = '<a href="'.$external_grouped_url.'" class="button external_grouped" target="_blank">'.__('Купить комплект','medknigasevis').' за '.wc_price($external_grouped_price).'</a>'; 
-		echo $button_html;
+		if ($external_grouped_price && $external_grouped_url) {
+			$button_html = '<a href="'.$external_grouped_url.'" class="button external_grouped" target="_blank">'.__('Купить комплект','medknigasevis').' за '.wc_price($external_grouped_price).'</a>'; 
+			echo $button_html;
+		}
 	}
 }
 
@@ -167,19 +169,13 @@ function med_download_button(){
 	global $product, $button_html;	
 	$isbn=$product->get_attribute('isbn');
 	$is_electron_badge = get_post_meta($product->get_id(),'_yith_wcbm_product_meta',true);
-	if (!$is_electron_badge) {
-		$is_electron_badge = get_post_meta($product->get_id(),'_yith_wcbm_badge_ids',true);
-	}
-
 	$button_html="";
-/*	echo '<div class="hidden">';
+	echo '<div class="hidden">';
 	echo '$isbn:'.$isbn.'<br>';
 	echo '$is_electron_badge:';
-	echo '<pre>';
-	print_r(get_post_meta($product->get_id()));
-	echo '</pre>';
-	echo '</div>';*/
-	if (!$isbn || !$is_electron_badge) return;
+	print_r($is_electron_badge);
+	echo '</div>';
+	if (!$isbn || !$is_electron_badge || !isset($is_electron_badge['id_badge'])) return;
 	$request = 'http://www.rosmedlib.ru/cgi-bin/mb4x?usr_data=gdaccessdata(shell,want_to_buy(ISBN:'.$isbn.',medknigaservis))';
 
 	try
@@ -192,7 +188,6 @@ function med_download_button(){
 		} else {
 		/*Если в ответе сервера на содержится url электронной книги, то очищаем поля признака электронной книги*/
 			update_post_meta($product->get_id(),'_yith_wcbm_product_meta',array());
-			update_post_meta($product->get_id(),'_yith_wcbm_badge_ids',array());
 			update_post_meta($product->get_id(),'_virtual','no');
 		}
 	}
@@ -207,11 +202,6 @@ add_action( 'woocommerce_after_single_product_summary','woocommerce_template_sin
 add_filter('term_links-product_cat', 'med_links_target_add');
 add_filter('term_links-product_tag', 'med_links_target_add');
 function med_links_target_add($links){
-	if (is_product()) {
-		echo '<script>';
-		print_r($links);
-		echo '</script>';
-	}
 	$default_cat=get_term_by('id',get_option( 'default_product_cat' ),'product_cat');
 	foreach ($links as $key=>&$link){
 		if (strpos($link,$default_cat->name)>0) {
@@ -238,6 +228,10 @@ function med_display_book_contents(){
 	if ($contents) {
 		echo $contents;
 	}
+	$product_meta = get_post_meta($product->get_id());
+	echo '<pre>';
+	print_r($product_meta);
+	echo '</pre>';
 }
 add_filter( 'woocommerce_product_tabs', 'med_edit_product_tabs', 98 );
 function med_edit_product_tabs( $tabs ) {
@@ -313,18 +307,11 @@ function med_bestselling_products() {
 	}
 }
 
-//add_action( 'woocommerce_after_single_product_summary','test',40 );
-function test(){
-	global $product;
-	echo '<pre>';
-	print_r(get_post_meta($product->get_id()));
-	echo '</pre>';
-}
 
 add_action( 'woocommerce_product_options_advanced', 'med_add_custom_price_for_grouped_product' );
 function med_add_custom_price_for_grouped_product() {
 	global $product, $post;
-	if ($product && $product->is_type('grouped')) {	
+	if ($product->is_type('grouped')) {	
 		woocommerce_wp_text_input( array(
 		   'id'                => '_external_grouped_url',
 		   'label'             => __( 'Ссылка на страницу комплекта на стороннем сайте', 'woocommerce' ),
@@ -348,14 +335,15 @@ return $price;*/
 return '';
 }
 
-add_action( 'woocommerce_process_product_meta', 'med_woo_custom_fields_save', 10 );
+//add_action( 'woocommerce_process_product_meta', 'med_woo_custom_fields_save', 10 );
 function med_woo_custom_fields_save( $post_id ){
-	$external_grouped_url = $_POST['_external_grouped_url'];
-	if ( ! empty( $external_grouped_url ) ) {
+	if ( isset( $external_grouped_url ) ) {
+		$external_grouped_url = $_POST['_external_grouped_url'];
 		update_post_meta( $post_id, '_external_grouped_url', esc_attr( $external_grouped_url ) );
 	}
-	$external_grouped_price = $_POST['_external_grouped_price'];
-	if ( ! empty( $external_grouped_price ) ) {
+	
+	if ( isset( $external_grouped_price ) ) {
+		$external_grouped_price = $_POST['_external_grouped_price'];
 		update_post_meta( $post_id, '_external_grouped_price', esc_attr( $external_grouped_price ) );
 	}	
 }
@@ -363,12 +351,8 @@ function med_woo_custom_fields_save( $post_id ){
 /***********************************
 Настраиваем товарную категорию
 **********************************/
-// Убирам бейджики "Нет в наличии", выводимые темой Total
-add_action( 'wp_loaded', function(){
-	remove_action( 'woocommerce_before_shop_loop_item', array('WPEX_WooCommerce_Config','add_shop_loop_item_out_of_stock_badge' ) );
-} );
 
-// Заменяем h2 на div
+/*Заменяем h2 на div*/
 function woocommerce_template_loop_product_title() {
 	echo '<div class="' . esc_attr( apply_filters( 'woocommerce_product_loop_title_classes', 'woocommerce-loop-product__title' ) ) . '">' . get_the_title() . '</div>'; 
 }
@@ -386,55 +370,31 @@ function med_hide_empty_price_products( $query ) {
 			array( 
 				'relation' => 'OR',
 				array(
-					'relation' => 'AND',
-					array(
-						'key'       => '_stock_status',
-						'value'     => 'instock',
-					),
-					array(
-						'key'       => '_regular_price',
-						'value'     => '',
-						'compare'   => '!='
-					),
-				),				
+					'key'       => '_regular_price',
+					'value'     => '',
+					'compare'   => 'NOT IN'
+				),
 				array(
-					'key'     => '_yith_wcbm_product_meta',
-					'value'     => '197477',
+					'key'       => '_virtual',
+					'value'     => 'yes',
+					'compare'   => 'IN'
+				),
+				array(
+					'key'       => '_sku',
+					'value'     => '-P',
 					'compare'   => 'LIKE'
 				),
-/*				array(
-					'key'     => '_yith_wcbm_badge_ids',
-					'value'     => '197477',
-					'type' => 'NUMERIC',
-					'compare'   => 'LIKE'
-				),*/																							
+				// array(
+				// 	'key'       => '_stock_status',
+				// 	'value'     => 'outofstock',
+				// 	'compare'   => 'NOT IN'
+				// )							
 			)
 		); 
 	} 
 }
 
-//add_filter( 'woocommerce_product_query_meta_query', 'med_shop_products', 10, 2 );
-function med_shop_products( $meta_query, $query ) {
-
-	if( is_admin() ) return $meta_query;
-
-	$meta_query[] = array(
-		'relation' => 'OR',
-		array(
-	    'key'     => '_stock_status',
-	    'value'   => 'outofstock',
-	    'compare' => '!='
-		),
-		array(
-		'key'     => '_yith_wcbm_product_meta',
-	    'value'   => '%"197477"%',
-	    'compare' => 'LIKE'
-		)
-	);
-	return $meta_query;
-}
-
-// Подменяем wc-функцию, чтобы ссылка открывалась в новой вкладке
+//Подменяем wc-функцию, чтобы ссылка открывалась в новой вкладке
 function woocommerce_template_loop_product_link_open() {
 		global $product;
 
@@ -443,13 +403,13 @@ function woocommerce_template_loop_product_link_open() {
 		echo '<a href="' . esc_url( $link ) . '" target="_blank" class="woocommerce-LoopProduct-link woocommerce-loop-product__link">';
 }
 
-add_action( 'woocommerce_archive_description', 'med_category_title',9 );
+add_action( 'woocommerce_archive_description', 'med_category_title',15 );
 function med_category_title(){ ?>
 	<h1 class="woocommerce-products-header__title page-title"><?php woocommerce_page_title(); ?></h1>
 <?php }
 remove_action( 'woocommerce_before_shop_loop_item_title', array( 'WPEX_WooCommerce_Config', 'loop_product_thumbnail' ), 10 );
 
-// Помещаем бейджик распродажи и новинки внутрь обертки div class="single_product_badges"
+/*Помещаем бейджик распродажи и новинки внутрь обертки div class="single_product_badges"*/
 remove_action( 'woocommerce_before_shop_loop_item_title','woocommerce_show_product_loop_sale_flash',10 );
 add_action( 'woocommerce_before_shop_loop_item_title', 'woocommerce_template_loop_product_thumbnail', 10 );
 
@@ -940,61 +900,60 @@ add_filter( 'woocommerce_checkout_fields' , 'med_override_address_fields' );
 
 /*Payment methods conditional display*/
 function alter_shipping_methods($available_gateways){
-	global $woocommerce;
+global $woocommerce;
 
-	if (null == (WC()->cart)){
-		return;
-	}
-	$needs_shipping = WC()->cart->needs_shipping();
-	if (!$needs_shipping) {
-		unset($available_gateways['bacs']);
-		return $available_gateways;
-	}
-	$chosen_titles = array();
-	$available_methods = WC()->shipping->get_packages();
-	$chosen_rates = ( isset( WC()->session ) ) ? WC()->session->get( 'chosen_shipping_methods' ) : array();
-	$chosen_method_cost = 0;
-	foreach ($available_methods as $method) {
-		foreach ($chosen_rates as $chosen) { 
-			if( isset( $method['rates'][$chosen] ) ) {
-				$chosen_method_cost = $method['rates'][ $chosen ]->cost;
-				$chosen_titles[] = $method['rates'][ $chosen ]->label;
-			}
-			
+if (null == (WC()->cart)){
+	return;
+}
+$needs_shipping = WC()->cart->needs_shipping();
+if (!$needs_shipping) {
+	unset($available_gateways['bacs']);
+	return $available_gateways;
+}
+$chosen_titles = array();
+$available_methods = WC()->shipping->get_packages();
+$chosen_rates = ( isset( WC()->session ) ) ? WC()->session->get( 'chosen_shipping_methods' ) : array();
+$chosen_method_cost = 0;
+foreach ($available_methods as $method) {
+	foreach ($chosen_rates as $chosen) { 
+		if( isset( $method['rates'][$chosen] ) ) {
+			$chosen_method_cost = $method['rates'][ $chosen ]->cost;
+			$chosen_titles[] = $method['rates'][ $chosen ]->label;
 		}
-	}
-	foreach ($chosen_titles as $key=>$chosen_title) {
 		
-		if (mb_stripos($chosen_title,'пункт')!==false || mb_stripos($chosen_title,'выдач')!==false || mb_stripos($chosen_title,'ПВЗ')!==false || mb_stripos($chosen_title,'курьер')!==false || mb_stripos($chosen_title,'гипермаркет')!==false || mb_stripos($chosen_title,'магаз')!==false)  {
-			unset($available_gateways['bacs']);
-		}
-		$delivery_to_shop = (mb_stripos($chosen_title,'магазин')!==false || mb_stripos($chosen_title,'гипермаркет')!==false) && (mb_stripos($chosen_title,'Фрунзенск')!==false || mb_stripos($chosen_title,'Новокузнецк')!==false || mb_stripos($chosen_title,'Савёлов')!==false);
-		if ($delivery_to_shop) {
-				unset($available_gateways['cp']);
-		}
-		//(mb_stripos($chosen_title,'Боксберри'))!==false || 
-		if ((mb_stripos($chosen_title,'Беларус'))!==false || (mb_stripos($chosen_title,'Армения'))!==false || (mb_stripos($chosen_title,'Киргизия'))!==false || (mb_stripos($chosen_title,'Казахстан'))!==false ) {
-			unset($available_gateways['cod']);
-		}
 	}
-	/*if( (WC()->cart->subtotal < WC()->cart->shipping_total) || (WC()->cart->total>=7000)) {*/
-	/*if( (WC()->cart->get_subtotal() < WC()->cart->get_shipping_total()) ) {*/ //Если стоимость корзины меньше стоимости доставки, то только выводить только онлайн-оплату
-	if( WC()->cart->get_subtotal() < 1201 && !$delivery_to_shop ) {
+}
+foreach ($chosen_titles as $key=>$chosen_title) {
+	
+	if (mb_stripos($chosen_title,'пункт')!==false || mb_stripos($chosen_title,'выдач')!==false || mb_stripos($chosen_title,'ПВЗ')!==false || mb_stripos($chosen_title,'курьер')!==false || mb_stripos($chosen_title,'гипермаркет')!==false || mb_stripos($chosen_title,'магаз')!==false)  {
+		unset($available_gateways['bacs']);
+	}
+	$delivery_to_shop = (mb_stripos($chosen_title,'магазин')!==false || mb_stripos($chosen_title,'гипермаркет')!==false) && (mb_stripos($chosen_title,'Фрунзенск')!==false || mb_stripos($chosen_title,'Новокузнецк')!==false || mb_stripos($chosen_title,'Савёлов')!==false);
+	if ($delivery_to_shop) {
+			unset($available_gateways['cp']);
+	}
+	if ((mb_stripos($chosen_title,'Боксберри'))!==false || (mb_stripos($chosen_title,'Беларус'))!==false || (mb_stripos($chosen_title,'Армения'))!==false || (mb_stripos($chosen_title,'Киргизия'))!==false || (mb_stripos($chosen_title,'Казахстан'))!==false ) {
 		unset($available_gateways['cod']);
 	}
+}
+/*if( (WC()->cart->subtotal < WC()->cart->shipping_total) || (WC()->cart->total>=7000)) {*/
+/*if( (WC()->cart->get_subtotal() < WC()->cart->get_shipping_total()) ) {*/ //Если стоимость корзины меньше стоимости доставки, то только выводить только онлайн-оплату
+if( WC()->cart->get_subtotal() < 1201 && !$delivery_to_shop ) {
+	unset($available_gateways['cod']);
+}
 
-	$applied_coupons = WC()->cart->get_applied_coupons();
-	foreach ($applied_coupons as $coupon_code ) {
-		$coupons1 = new WC_Coupon( $coupon_code );
-		/*strpos($coupons1->get_code(),'rp_wcd') === 0   Условие временно отключено*/
-		//echo WC()->cart->get_subtotal();
-	        if (/*$coupons1->is_type('fixed_cart')*/$coupons1->get_amount()>=WC()->cart->get_subtotal() /*|| $chosen_method_cost == 0*/) {
-					unset($available_gateways['cp']);
-					break;
-	        }
-	}
+$applied_coupons = WC()->cart->get_applied_coupons();
+foreach ($applied_coupons as $coupon_code ) {
+	$coupons1 = new WC_Coupon( $coupon_code );
+	/*strpos($coupons1->get_code(),'rp_wcd') === 0   Условие временно отключено*/
+	//echo WC()->cart->get_subtotal();
+        if (/*$coupons1->is_type('fixed_cart')*/$coupons1->get_amount()>=WC()->cart->get_subtotal() /*|| $chosen_method_cost == 0*/) {
+				unset($available_gateways['cp']);
+				break;
+        }
+}
 
-	return $available_gateways;
+return $available_gateways;
 }
 add_action('woocommerce_available_payment_gateways', 'alter_shipping_methods');
 

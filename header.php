@@ -193,14 +193,24 @@
 			<?php wpex_hook_header_after(); ?>
 			<!-- Баннеры -->
 			<?php $left_banner=get_field('left_banner',2);
+			$left_banner_lnk=get_field('left_banner_lnk',2);
 			if (!$left_banner) {$left_banner = get_stylesheet_directory_uri().'/img/banner.jpg';}
 			$right_banner=get_field('right_banner',2);
-			if (!$right_banner) {$right_banner = get_stylesheet_directory_uri().'/img/banner.jpg';}?>
+			if (!$right_banner) {$right_banner = get_stylesheet_directory_uri().'/img/banner.jpg';}
+			$right_banner_lnk=get_field('right_banner_lnk',2); ?>
             <div class="info_blocks">
             	<?php if (!is_cart() && !is_checkout()){ ?>
 				<div class="mk-row clr">
-					<div class="col-sm-6 col-md-6"><img src="<?php echo $left_banner; ?>" class="img-responsive"></div>
-                    <div class="col-sm-6 col-md-6"><img src="<?php echo $right_banner ?>" class="img-responsive"></div>
+					<div class="col-sm-6 col-md-6">
+						<?php if ($left_banner_lnk) { ?><a href="<?php echo sanitize_text_field($left_banner_lnk); ?>"><?php }?>
+						<img src="<?php echo $left_banner; ?>" class="img-responsive">
+						<?php if ($left_banner_lnk) { ?></a><?php }?>
+					</div>
+                    <div class="col-sm-6 col-md-6">
+						<?php if ($right_banner_lnk) { ?><a href="<?php echo sanitize_text_field($right_banner_lnk); ?>"><?php }?>
+                    	<img src="<?php echo $right_banner ?>" class="img-responsive">
+						<?php if ($right_banner_lnk) { ?></a><?php }?>
+                    </div>
 				</div><!--/.row-->
 				<?php } ?>
         	</div><!--/.info_blocks-->

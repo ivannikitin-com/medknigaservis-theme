@@ -49,8 +49,12 @@ function mks_pickpoint_datatable_shipping_cost( $shipping_cost, $order )
 	$total_2 = 0;	
 	
 	$payment_method = $order->get_payment_method_title();
-	if ( $payment_method == 'Наличными/картой при получении' || $payment_method == 'По квитанции в банке' )
+	$payment_method_code = $order->get_payment_method();
+	if ( ($payment_method == 'Наличными/картой при получении') || ($payment_method == 'Оплата при доставке') || ($payment_method == 'По квитанции в банке') )
 		$total_2 = $order->get_total();
+	if ( $payment_method_code == 'cod' ) {
+		$total_2 = $order->get_total();
+	}
 		
 	return $total_2;
 }

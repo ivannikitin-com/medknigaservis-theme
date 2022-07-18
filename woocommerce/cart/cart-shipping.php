@@ -48,13 +48,22 @@ endif;
 						if ( isset($_was_shipping_method['pickpoint_zone']) && $_was_shipping_method['pickpoint_zone']!=='' && checked( $method->id, $chosen_method, false ) ) {
 							echo '<a href="#" class="button" onclick="PickPoint.open(my_function);return false">Выбрать</a>';
 						}
+/*						if ( isset($_was_shipping_method['boxberry_zone']) && $_was_shipping_method['boxberry_zone']!=='' && checked( $method->id, $chosen_method, false ) ) {
+							echo '<a href="#" class="button" onclick="boxberry.open(my_function);return false">Выбрать</a>';
+						}*/						
 						$order_weight = WC()->cart->get_cart_contents_weight();
 						if ($order_weight<1) {
 							$order_weight = 1;
 						}						
 						if ((checked( $method->id, $chosen_method, false ) && (mb_stripos($method->label,'пункт') !== false && mb_stripos($method->label,'выдач') !== false) || (mb_stripos($method->label,'пвз') !== false)) && isset($_was_shipping_method['boxberry_zone']) && $_was_shipping_method['boxberry_zone']) {
-
-							echo '<a href="#" class="button" onclick="boxberry.open('."'bb_pvz_function'".','."'1\$RLsqL2_rvA7qC-6XrxlYP6o6OfvrnKFa'".", '".WC()->customer->get_shipping_city()."', '', '', ".$order_weight.');return false">Выбрать</a>';
+							$shipping_city_4_boxberry = WC()->customer->get_shipping_city();
+							if (WC()->customer->get_shipping_state() == 'РФ, Москва' || WC()->customer->get_shipping_state() === 'MS') {
+								$shipping_city_4_boxberry = "Москва";
+							}
+							if (WC()->customer->get_shipping_state() == 'РФ, Санкт-Петербург' || WC()->customer->get_shipping_state() === 'LE') {
+								$shipping_city_4_boxberry = "Санкт-Петербург";
+							}							
+							echo '<a href="#" class="button" onclick="boxberry.open('."'bb_pvz_function'".','."'1\$RLsqL2_rvA7qC-6XrxlYP6o6OfvrnKFa'".", '".$shipping_city_4_boxberry."','',1000,".$order_weight.');return false">Выбрать</a>';
 						}?>						
 					</li>
 					<div class="shipping_method_comment"><?php echo $_was_shipping_method['shipping_comment']; ?></div>
@@ -97,7 +106,14 @@ endif;
 					$order_weight = 1;
 				}
 				if ( isset($_was_shipping_method['boxberry_zone']) && $_was_shipping_method['boxberry_zone']) {
-					echo '<a href="#" class="button" onclick="boxberry.open('."'bb_pvz_function'".','."'1\$RLsqL2_rvA7qC-6XrxlYP6o6OfvrnKFa'".", '".WC()->customer->get_shipping_city()."', '', '', ".$order_weight.');return false">Выбрать</a>';
+					$shipping_city_4_boxberry = WC()->customer->get_shipping_city();
+					if (WC()->customer->get_shipping_state() == 'РФ, Москва' || WC()->customer->get_shipping_state() === 'MO') {
+						$shipping_city_4_boxberry = "Москва";
+					}
+					if (WC()->customer->get_shipping_state() == 'РФ, Санкт-Петербург' || WC()->customer->get_shipping_state() === 'LE') {
+						$shipping_city_4_boxberry = "Санкт-Петербург";
+					}					
+					echo '<a href="#" class="button" onclick="boxberry.open('."'bb_pvz_function'".','."'1\$RLsqL2_rvA7qC-6XrxlYP6o6OfvrnKFa'".", '".WC()->customer->get_shipping_city()."','',1000,".$order_weight.');return false">Выбрать</a>';
 				}				
 				echo '</div>';
 	

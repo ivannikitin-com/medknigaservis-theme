@@ -15,7 +15,7 @@ function mks_topdelivery_items( $items, $order )
         'article'       => 'shipping_' . $order->get_id(),
         'count'         => 1,
         'declaredPrice' => $order->get_shipping_total(),
-        'clientPrice'   => ( $paymentMethod == 'site' || $paymentMethod == 'cp' ) ? 0 : $order->get_shipping_total(),
+        'clientPrice'   => ( $paymentMethod == 'site' || $paymentMethod == 'cp' || strpos( $payment_method, 'alg_tinkoff_gateway' ) !== false) ? 0 : $order->get_shipping_total(),
         'weight'        => 0,
         'push'          => 1,
         'status' => array(

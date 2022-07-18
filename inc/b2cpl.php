@@ -56,7 +56,7 @@ add_filter( 'inwccrm_b2cpl_price_delivery_pay', 'mks_b2cpl_price_delivery_pay', 
 function mks_b2cpl_price_delivery_pay( $value, $order )
 {
 	$paymentMethod = $order->get_payment_method();
-	if ( $paymentMethod == 'site' || $paymentMethod == 'cp' )
+	if ( $paymentMethod == 'site' || $paymentMethod == 'cp' || strpos( $$payment_method_code, 'alg_tinkoff_gateway' ) !== false )
 	{
 		return 0;
 	}	
